@@ -5,22 +5,29 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootApplication
 @RestController
 @RequestMapping("api/v1/customers")
 public class Main {
 
-    private final CustmorRepository custmorRepository;
+    private final CustmorRepository customerRepository;
 
-    public Main(CustmorRepository custmorRepository) {
-        this.custmorRepository = custmorRepository;
+    public Main(CustmorRepository customerRepository) {
+        this.customerRepository = customerRepository;
     }
 
     @GetMapping
     public List<Customer> getCustomers(){
-        return custmorRepository.findAll();
+        return customerRepository.findAll();
     }
+
+    @GetMapping("{customerId}")
+    public Optional<Customer> getById(@PathVariable("customerId") Integer id){
+        return customerRepository.findById(id);
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(Main.class,args);
     }
@@ -33,11 +40,20 @@ public class Main {
         customer.setName(request.name());
         customer.setEmail(request.email());
         customer.setAge(request.age());
-        custmorRepository.save(customer);
+        customerRepository.save(customer);
     }
 
     @DeleteMapping("{customerId}")
     public void deleteCustomer(@PathVariable("customerId") Integer id){
-        custmorRepository.deleteById(id);
+        customerRepository.deleteById(id);
+    }
+
+    @PutMapping("{customerId}")
+    public void updateCustomer(@PathVariable("customerId") Integer id,@RequestBody NewCustomerRequest request){
+        Customer customer = customerRepository.getById(id);
+        customer.setName(request.name());
+        customer.setEmail(request.email());
+        customer.setAge(request.age());
+        customerRepository.save(customer);
     }
 }
